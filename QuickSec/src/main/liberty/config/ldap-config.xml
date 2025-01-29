@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<server description="open-ldap config">
+
+    <!-- Enable features -->
+    <featureManager>
+       <feature>ldapRegistry-3.0</feature>
+    </featureManager>
+
+    <ssl id="LDAPSSLSettings" sslProtocol="TLSv1.2" keyStoreRef="ldaptruststore" trustStoreRef="ldaptruststore" />
+    <keyStore id="ldaptruststore" location="${server.config.dir}/nest-ldap.p12" type="PKCS12" password="{xor}Ej4xPjg6MjoxKw==" />
+
+    <ldapRegistry host="${env.ldapHost}" baseDN="o=ibm,c=us" port="${env.ldapPort}" ldapType="IBM Tivoli Directory Server" id="openldap" sslEnabled="${env.ldapSSL}" name="o=ldap1" sslRef="LDAPSSLSettings">
+        <failoverServers name="failoverLdapServersGroup">
+	    <server host="nest-ldap-svl-1.fyre.ibm.com" port="${env.ldapPort}" />
+	    <server host="nest-ldap-1.fyre.ibm.com" port="${env.ldapPort}" />
+            <server host="nest-ldap-2.fyre.ibm.com" port="${env.ldapPort}" />
+            <server host="nest-ldap-3.fyre.ibm.com" port="${env.ldapPort}" />
+	    </failoverServers>
+    </ldapRegistry> 
+</server>
+
