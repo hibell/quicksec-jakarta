@@ -1,0 +1,9 @@
+#Property added to connect LDAP servers on LDAP due to change in 80520.
+#https://www.oracle.com/technetwork/java/javase/10-0-2-relnotes-4477557.html
+-Dcom.sun.jndi.ldap.object.disableEndpointIdentification=true
+-verbose:gc
+-Xdump:heap
+-Xaggressive
+-Xverbosegclog:/logs/verbosegc.log
+-verbose:sizes
+

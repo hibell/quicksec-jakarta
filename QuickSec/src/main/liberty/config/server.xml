@@ -1,0 +1,127 @@
+<server description="QuickSec">
+<!-- It is ok to use the below LDAP server but make sure to use the correct trust store so that LDAP connection can be on SSL -->
+
+	<!-- Enable features -->
+    <featureManager>
+		
+     <feature>jakartaee-10.0</feature>
+     <feature>microProfile-6.0</feature>
+     <feature>ldapRegistry-3.0</feature>
+	    
+   </featureManager>
+
+  <httpEndpoint host="*" httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint"> 
+    <tcpOptions soReuseAddr="true"/> 
+    <httpOptions maxKeepAliveRequests="-1"/>
+  </httpEndpoint>
+
+  <mpMetrics authentication="false" />
+	
+  
+<!-- This is new property for 4Q to make JAPSIC application works like non-JAPIC -->
+<webAppSecurity useLtpaSSOForJaspic="true" />
+
+<!-- This property was set to set custom cookie name to avoid conflict when using SSO -->
+<!--<webAppSecurity useOnlyCustomCookieName="true" ssoCookieName="mstCookie"/> -->  
+ 
+<!-- Replace DB server information below to connect to your own DB server -->
+        <authData id="DBAuth" password="${env.DBPass}" user="${env.DBUser}"/>
+
+	<dataSource containerAuthDataRef="DBAuth" id="Messenger" jdbcDriverRef="JDBCDriver" jndiName="jdbc/Messenger" type="javax.sql.XADataSource">
+         <properties.db2.jcc databaseName="${env.DBName}" driverType="4" password="${env.DBPass}" portNumber="${env.DBPort}" serverName="${env.DBHost}"  />
+	</dataSource>
+
+	<jdbcDriver id="JDBCDriver">
+	 <library>
+	  <fileset dir="/config/db2jars" id="db2jcc4" includes="db2jcc4.jar, db2jcc_license_cu.jar"/>
+	 </library>
+	</jdbcDriver>
+
+<!-- This allows certificate client to use basic authentication if certificate authentication does not succeed -->
+<!--	<webAppSecurity allowFailOverToBasicAuth="true" useAuthenticationDataForUnprotectedResource="false"/> -->
+	
+<!-- Binding for QuickSec application -->
+	<application context-root="QuickSec" id="QuickSec" location="${server.config.dir}/apps/QuickSec.ear" name="QuickSec" type="ear">
+	<application-bnd> 
+	   <security-role name="OtherLogin_WebUsers">
+				<user name="tambolims@gmail.com"/>
+				<user name="persona101"/>
+			  	<group name="g1-10"/> 
+				<group name="g11-20"/>
+				<group name="g21-30"/>
+				<group name="g31-40"/>
+				<group name="g41-50"/>
+				<group name="g51-60"/>
+				<group name="g61-70"/>
+				<group name="g71-80"/>
+				<group name="g81-90"/>
+				<group name="g91-100"/>
+				<!-- <user name="persona2"/> -->
+				<special-subject type="ALL_AUTHENTICATED_USERS"/>
+			</security-role> 
+<!-- This role is used bu QuickSeBasic web module. Users assigned to this role are able to access the web module -->
+			<security-role name="BasicLogin_WebUsers">
+				<user name="persona1"/>
+				<user name="persona102"/>
+				<group name="g1-10"/>
+				<group name="g11-20"/>
+			</security-role>
+<!-- This role is used bu QuickSeBasic web module. Any user assigned to this role is not able to access the web module -->
+			<security-role name="BasicLoginDummy_WebUsers">
+				<user name="persona103"/>
+				<group name="g11-20"/>
+			</security-role>
+			<security-role name="delegateUsers">
+				<user name="persona104"/>
+				<group name="g1-10"/>
+				<group name="g11-20"/>
+				<group name="g21-30"/>
+				<group name="g31-40"/>
+				<group name="g41-50"/>
+				<group name="g51-60"/>
+				<group name="g61-70"/>
+				<group name="g71-80"/>
+				<group name="g81-90"/>
+				<group name="g91-100"/>
+				<user name="persona2"/>
+			  <special-subject type="ALL_AUTHENTICATED_USERS"/>
+			</security-role>
+<!-- These users are marked admin in the database. This role is used by MessengerEJB -->
+			<security-role name="admins">
+			   <user name="persona105"/>
+			   <user name="persona2"/>
+			   <group name="g1-10"/>	
+			   <special-subject type="ALL_AUTHENTICATED_USERS"/>
+			</security-role>
+
+			<security-role name="messengerUsers">
+				<user name="persona106"/>
+				<special-subject type="ALL_AUTHENTICATED_USERS"/>
+			</security-role>
+<!-- These users are marked manager in the database. This role is used by MessengerEJB -->
+			<security-role name="manager"> 
+				<user name="persona107"/>
+				<group name="g1-10"/>
+			</security-role>
+<!-- The below runas mapping could be commented for longrun, otherwise all the calls to delegateEJB will be as below mapped user rather than user entered from the web login. -->
+		 	<security-role name="RunAsSpecified_servlet"> 
+				 <run-as userid="persona108"/> 
+				 <!--<run-as userid="persona1"/> --> 
+			</security-role>
+<!-- delegateEJBBeanLevelRunAs applied to all the methods of delegateEJB so that all the outbound calls to messngerEJB will use this identity.-->	
+			<security-role name="delegateEJBBeanLevelRunAs">
+				<run-as userid="persona109"/> 
+			</security-role>	
+<!-- This role is mapped to persona11 in the ibm-application-bnd.xml file. Below lines can be uncommented to override the binding mapping.   -->
+			<!--  <security-role name="delegateEJBMethodLevelRunAS"> <run-as userid="persona3"/> 
+				</security-role>  -->
+	</application-bnd>
+	</application>  
+
+	<httpOptions persistTimeout="300s" readTimeout="300s" writeTimeout="300s"/> 
+
+<!--  
+    <logging maxFileSize="100" traceSpecification="com.ibm.ws.svt.*=FINE"/>
+-->
+        
+</server>
